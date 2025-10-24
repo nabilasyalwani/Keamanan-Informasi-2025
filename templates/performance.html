@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8"><title>Performance</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_performance.css') }}">
+</head>
+<body>
+  <h2>Performance table</h2>
+  <table border="1" cellpadding="6">
+    <tr>
+      <th>ID</th><th>Owner</th><th>Filename</th><th>Algorithm</th><th>Size (bytes)</th><th>Enc time (s)</th><th>Dec time (s)</th><th>Uploaded</th>
+    </tr>
+    {% for r in rows %}
+    <tr>
+      <td>{{ r.id }}</td>
+      <td>{{ r.owner_name }}</td>
+      <td>{{ r.filename }}</td>
+      <td>{{ r.algorithm }}</td>
+      <td>{{ r.ciphertext_size }}</td>
+      <td>{{ r.enc_time }}</td>
+      <td>{{ r.dec_time or '-' }}</td>
+      <td>{{ r.created_at }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  <a href="{{ url_for('index') }}">Back</a>
+</body>
+</html>

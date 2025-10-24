@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>File Encryptor / Decryptor</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
 
     <script>
-        // Menghapus pesan flash otomatis setelah 5 detik
         setTimeout(function() {
             let messagesDiv = document.querySelector('.messages');
             if (messagesDiv) {
@@ -19,7 +18,7 @@
 
 <body>
     <div class="container">
-        <h1>🔒 File Encryptor / Decryptor</h1>
+        <h1>File Encryptor / Decryptor</h1>
 
         {% with messages = get_flashed_messages() %}
             {% if messages %}
