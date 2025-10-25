@@ -6,8 +6,8 @@
 |----|-----------------------------|------------|
 | 1  | Haliza Nur Kamila Apalwan   | 5025231038 |
 | 2  | Alma Khusnia                | 5025231063 |
-| 3  | Sharfina Ardhiyanti Anam    | 5025231111 |
-| 4  | Andi Nur Nabila S           | 5025231104 |
+| 3  | Andi Nur Nabila S           | 5025231104 |
+| 4  | Sharfina Ardhiyanti Anam    | 5025231111 |
 
 ## Overview
 
@@ -119,6 +119,7 @@ DB_CONFIG = {
 ```
 python app.py
 ```
+
 
 
 
