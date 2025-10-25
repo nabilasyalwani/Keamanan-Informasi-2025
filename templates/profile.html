@@ -1,0 +1,191 @@
+{% extends 'base.html' %} {% block title %}Profile | Keamanan Informasi{%
+endblock %} {% block content %}
+
+<div class="mb-4">
+  <h1 class="h3 fw-bold text-primary">
+    <i class="bi bi-person-circle me-2"></i>Profil Pengguna
+  </h1>
+  <p class="text-white">Kelola informasi profil dan foto Anda</p>
+</div>
+
+<div class="row g-4">
+  <div class="col">
+    <div class="modern-card card border-0 shadow-sm p-4 text-center">
+      <div class="profile-photo-placeholder mb-4">
+        <div
+          class="bg-gradient-light border-0 rounded-4 d-flex align-items-center justify-content-center shadow-sm"
+          style="height: 200px"
+        >
+          {% if user and user.profile_file_id and profile_data %}
+          <img
+            src="{{ url_for('profile_image_preview') }}"
+            alt="Profile Photo"
+            class="img-fluid rounded-4"
+            style="max-height: 200px; width: 100%; object-fit: cover"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+          />
+          <div class="text-center" style="display: none">
+            <div class="text-primary" style="font-size: 4rem; opacity: 0.4">
+              <i class="bi bi-person-circle"></i>
+            </div>
+            <span class="text-muted small">Preview tidak tersedia</span>
+          </div>
+          {% else %}
+          <div class="text-center">
+            <div class="text-primary" style="font-size: 4rem; opacity: 0.4">
+              <i class="bi bi-person-circle"></i>
+            </div>
+            <span class="text-muted small">Profile Photo Preview</span>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="profile-info">
+        <div class="mb-3">
+          <div class="small text-muted text-uppercase fw-semibold mb-1">
+            Username
+          </div>
+          <div class="h5 fw-bold text-primary">
+            {{ user.username if user else '-' }}
+          </div>
+        </div>
+
+        {% if profile_data and profile_data.algorithm %}
+        <div class="mb-2">
+          <div class="small text-muted text-uppercase fw-semibold mb-1">
+            Enkripsi Profil
+          </div>
+          <span class="badge bg-gradient-blue text-white px-3 py-2">
+            <i class="bi bi-shield-lock-fill me-1"></i>{{ profile_data.algorithm
+            }}
+          </span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-8">
+    <div class="modern-card card border-0 shadow-sm p-4 mb-4">
+      <div
+        class="card-header bg-gradient-blue text-white py-3 px-0 border-0 rounded-3 mb-4"
+      >
+        <h2 class="h5 mb-0 fw-semibold px-3">
+          <i class="bi bi-camera-fill me-2"></i>Upload Foto Profil
+        </h2>
+      </div>
+
+      <form method="post" enctype="multipart/form-data">
+        <div class="mb-3">
+          <label class="form-label fw-semibold text-secondary"
+            >Pilih Foto Baru</label
+          >
+          <input
+            type="file"
+            name="profile_image"
+            accept="image/*"
+            class="form-control form-control-lg"
+          />
+          <div class="form-text">Format: JPG atau PNG. Max 5MB.</div>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-semibold text-secondary d-block mb-3"
+            >Pilih Algoritma Enkripsi</label
+          >
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="algorithm-card p-3 border rounded-3 h-100">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    value="AES"
+                    id="algAES"
+                    name="algorithms"
+                  />
+                  <label class="form-check-label fw-semibold" for="algAES">
+                    <i class="bi bi-lock-fill me-1"></i> AES
+                  </label>
+                </div>
+                <small class="text-muted d-block mt-1"
+                  >Advanced Encryption Standard</small
+                >
+                <div class="mt-2">
+                  <input
+                    type="password"
+                    name="key_AES"
+                    class="form-control form-control-sm"
+                    placeholder="Key AES"
+                    disabled
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="algorithm-card p-3 border rounded-3 h-100">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    value="DES"
+                    id="algDES"
+                    name="algorithms"
+                  />
+                  <label class="form-check-label fw-semibold" for="algDES">
+                    <i class="bi bi-shield-fill me-1"></i> DES
+                  </label>
+                </div>
+                <small class="text-muted d-block mt-1"
+                  >Data Encryption Standard</small
+                >
+                <div class="mt-2">
+                  <input
+                    type="password"
+                    name="key_DES"
+                    class="form-control form-control-sm"
+                    placeholder="Key DES"
+                    disabled
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="algorithm-card p-3 border rounded-3 h-100">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    value="RC4"
+                    id="algRC4"
+                    name="algorithms"
+                  />
+                  <label class="form-check-label fw-semibold" for="algRC4">
+                    <i class="bi bi-lightning-fill me-1"></i> RC4
+                  </label>
+                </div>
+                <small class="text-muted d-block mt-1">Rivest Cipher 4</small>
+                <div class="mt-2">
+                  <input
+                    type="password"
+                    name="key_RC4"
+                    class="form-control form-control-sm"
+                    placeholder="Key RC4"
+                    disabled
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-lg px-4" type="submit">
+          <i class="bi bi-shield-lock-fill me-2"></i
+          ><strong>Upload &amp; Encrypt</strong>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

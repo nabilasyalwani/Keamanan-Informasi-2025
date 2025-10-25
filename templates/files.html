@@ -1,0 +1,248 @@
+{% extends 'base.html' %} {% block title %}Files | Keamanan Informasi{% endblock
+%} {% block content %}
+
+<div class="mb-4">
+  <h1 class="h3 fw-bold text-primary">
+    <i class="bi bi-folder-fill me-2"></i>Semua File Anda
+  </h1>
+  <p class="text-white">
+    Kelola dan download file terenkripsi yang telah Anda upload
+  </p>
+</div>
+
+<div class="modern-card card border-0 shadow-sm p-4">
+  <div
+    class="d-flex justify-content-between align-items-center card-header bg-gradient-blue text-white py-3 px-0 border-0 rounded-3 mb-4"
+  >
+    <h2 class="h5 mb-0 fw-semibold px-3">
+      <i class="bi bi-card-list me-2"></i>Daftar File
+    </h2>
+    <span class="badge bg-transparent px-3 py-2"
+      >{{ files|length }} File{{ 's' if files|length != 1 }}</span
+    >
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th class="fw-semibold">
+            <i class="bi bi-file-earmark me-1"></i> File Name
+          </th>
+          <th class="fw-semibold"><i class="bi bi-tag-fill me-1"></i> Type</th>
+          <th class="fw-semibold">
+            <i class="bi bi-shield-lock-fill me-1"></i> Algorithm
+          </th>
+          <th class="fw-semibold">
+            <i class="bi bi-calendar-event me-1"></i> Date
+          </th>
+          <th class="fw-semibold text-center">
+            <i class="bi bi-download me-1"></i> Decrypt
+          </th>
+          <th class="fw-semibold text-center">
+            <i class="bi bi-share-fill me-1"></i> Share
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if files %} {% for f in files %}
+        <tr>
+          <td>
+            <div class="d-flex align-items-center">
+              <div class="file-icon me-2">
+                {% set ext = (f.filename.rsplit('.', 1)[-1] if '.' in f.filename
+                else '').lower() %} {% if ext in ['xlsx', 'csv'] %}
+                <i class="bi bi-file-earmark-spreadsheet-fill text-report"></i>
+                {% elif ext in ['png','jpg','jpeg','gif','webp', 'tiff'] %}
+                <i class="bi bi-image-fill text-image"></i>
+                {% else %}
+                <i class="bi bi-file-earmark-fill text-secondary"></i>
+                {% endif %}
+              </div>
+              <strong>{{ f.filename }}</strong>
+            </div>
+          </td>
+          <td>
+            {% set ext = (f.filename.rsplit('.', 1)[-1] if '.' in f.filename
+            else '').lower() %} {% if ext in ['xlsx', 'csv'] %}
+            <span class="badge bg-report">Report</span>
+            {% elif ext in ['png','jpg','jpeg','gif','webp', 'tiff'] %}
+            <span class="badge bg-image">Image</span>
+            {% else %}
+            <span class="badge bg-secondary">Other</span>
+            {% endif %}
+          </td>
+          <td><span class="badge bg-gradient-blue">{{ f.algorithm }}</span></td>
+          <td class="text-muted small">{{ f.created_at }}</td>
+          <td class="text-center">
+            <a
+              class="btn btn-sm btn-primary px-3 btn-decrypt"
+              href="{{ url_for('download_file', file_id=f.id) }}"
+              data-filename="{{ f.filename }}"
+              data-algorithm="{{ f.algorithm }}"
+              title="Download dan dekripsi file"
+            >
+              Decrypt
+            </a>
+          </td>
+          <td class="text-center">
+            <a
+              class="btn btn-sm btn-outline-primary px-3 btn-share"
+              href="{{ url_for('share_file', file_id=f.id) }}"
+              data-filename="{{ f.filename }}"
+              title="Share file terenkripsi"
+            >
+              <i class="bi bi-share-fill"></i>
+            </a>
+          </td>
+        </tr>
+        {% endfor %} {% else %}
+        <tr>
+          <td colspan="5" class="text-center py-5 text-muted">
+            <div
+              class="mb-3 text-primary"
+              style="font-size: 3rem; opacity: 0.3"
+            >
+              <i class="bi bi-folder2-open"></i>
+            </div>
+            <p class="mb-2">Belum ada file yang diupload</p>
+            <a
+              href="{{ url_for('upload_report') }}"
+              class="btn btn-primary btn-sm mt-2"
+              >Upload File Sekarang</a
+            >
+          </td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Share Modal -->
+<div
+  class="modal fade"
+  id="shareModal"
+  tabindex="-1"
+  aria-labelledby="shareModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      <div class="modal-header bg-gradient-blue text-white rounded-4">
+        <h5 class="modal-title" id="shareModalLabel">
+          <i class="bi bi-share-fill me-2"></i>Bagikan File
+        </h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <form id="shareForm" method="post" action="#">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-secondary">File</label>
+            <input
+              type="text"
+              id="shareFilename"
+              class="form-control"
+              readonly
+            />
+          </div>
+          <div class="mb-2">
+            <label class="form-label fw-semibold text-secondary"
+              >Pilih Pengguna</label
+            >
+            <select class="form-select" name="shared_with_user_id" required>
+              <option value="" selected disabled>— Pilih Pengguna —</option>
+              {% for u in users %}
+              <option value="{{ u.id }}">{{ u.username }}</option>
+              {% endfor %}
+            </select>
+            <div class="form-text">Hanya pengguna terdaftar di sistem.</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            data-bs-dismiss="modal"
+          >
+            Batal
+          </button>
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-send-check-fill me-1"></i> Bagikan
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Decrypt Modal -->
+<div
+  class="modal fade"
+  id="decryptModal"
+  tabindex="-1"
+  aria-labelledby="decryptModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      <div class="modal-header bg-gradient-blue text-white rounded-4">
+        <h5 class="modal-title" id="shareModalLabel">
+          <i class="bi bi-unlock-fill me-2"></i> Decrypt File
+        </h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <form id="decryptForm" method="post" action="#">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-secondary">File</label>
+            <input
+              type="text"
+              id="decryptFilename"
+              class="form-control"
+              readonly
+            />
+          </div>
+          <div class="mb-2">
+            <label class="form-label fw-semibold text-secondary"
+              >Masukkan Key</label
+            >
+            <input
+              type="text"
+              id="decryptKey"
+              class="form-control"
+              name="decrypt_key"
+              required
+            />
+            <div class="form-text">
+              Masukkan key yang sesuai untuk mendekripsi file.
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            data-bs-dismiss="modal"
+          >
+            Batal
+          </button>
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-unlock-fill me-1"></i> Decrypt
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

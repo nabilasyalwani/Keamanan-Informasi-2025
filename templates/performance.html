@@ -1,28 +1,354 @@
-<!doctype html>
-<html>
-<head>
-    <meta charset="utf-8"><title>Performance</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style_performance.css') }}">
-</head>
-<body>
-  <h2>Performance table</h2>
-  <table border="1" cellpadding="6">
-    <tr>
-      <th>ID</th><th>Owner</th><th>Filename</th><th>Algorithm</th><th>Size (bytes)</th><th>Enc time (s)</th><th>Dec time (s)</th><th>Uploaded</th>
-    </tr>
-    {% for r in rows %}
-    <tr>
-      <td>{{ r.id }}</td>
-      <td>{{ r.owner_name }}</td>
-      <td>{{ r.filename }}</td>
-      <td>{{ r.algorithm }}</td>
-      <td>{{ r.ciphertext_size }}</td>
-      <td>{{ r.enc_time }}</td>
-      <td>{{ r.dec_time or '-' }}</td>
-      <td>{{ r.created_at }}</td>
-    </tr>
-    {% endfor %}
-  </table>
-  <a href="{{ url_for('index') }}">Back</a>
-</body>
-</html>
+{% extends 'base.html' %} {% block title %}Performance | Keamanan Informasi{%
+endblock %} {% block content %}
+
+<div class="mb-4">
+  <h1 class="h3 fw-bold text-primary">
+    <i class="bi bi-graph-up-arrow me-2"></i>Performance Comparison
+  </h1>
+  <p class="text-white">
+    Perbandingan performa AES, DES, dan RC4 untuk berbagai tipe data
+  </p>
+</div>
+
+<!-- Encryption Time Comparison -->
+<div class="modern-card card border-0 shadow-sm p-4 mb-4">
+  <div
+    class="card-header bg-gradient-blue text-white py-3 px-0 border-0 rounded-3 mb-4"
+  >
+    <h2 class="h5 mb-0 fw-semibold px-3">
+      <i class="bi bi-stopwatch-fill me-2"></i>1. Encryption Time Comparison
+      (milliseconds)
+    </h2>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle text-center">
+      <thead class="table-light">
+        <tr>
+          <th class="fw-semibold">File Type</th>
+          <th class="fw-semibold bg-primary text-white">AES</th>
+          <th class="fw-semibold bg-success text-white">DES</th>
+          <th class="fw-semibold bg-info text-white">RC4</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% set file_types = ['image', 'spreadsheet', 'other'] %} {% for ftype in
+        file_types %}
+        <tr>
+          <td class="fw-semibold text-start">
+            {% if ftype == 'image' %}
+            <i class="bi bi-image-fill text-primary me-2"></i>Image {% elif
+            ftype == 'spreadsheet' %}
+            <i class="bi bi-file-earmark-spreadsheet-fill text-success me-2"></i
+            >Spreadsheet {% else %}
+            <i class="bi bi-file-earmark-fill text-secondary me-2"></i>Other {%
+            endif %}
+          </td>
+          <td>
+            {% if comparison_data.get('AES', {}).get(ftype) %}
+            <span class="badge bg-primary">
+              {{ '%.4f'|format(comparison_data['AES'][ftype]['avg_enc_time'])
+              }}ms
+            </span>
+            <br /><small class="text-muted"
+              >({{ comparison_data['AES'][ftype]['count'] }} files)</small
+            >
+            {% else %}
+            <span class="text-muted">-</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if comparison_data.get('DES', {}).get(ftype) %}
+            <span class="badge bg-success">
+              {{ '%.4f'|format(comparison_data['DES'][ftype]['avg_enc_time'])
+              }}ms
+            </span>
+            <br /><small class="text-muted"
+              >({{ comparison_data['DES'][ftype]['count'] }} files)</small
+            >
+            {% else %}
+            <span class="text-muted">-</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if comparison_data.get('RC4', {}).get(ftype) %}
+            <span class="badge bg-info">
+              {{ '%.4f'|format(comparison_data['RC4'][ftype]['avg_enc_time'])
+              }}ms
+            </span>
+            <br /><small class="text-muted"
+              >({{ comparison_data['RC4'][ftype]['count'] }} files)</small
+            >
+            {% else %}
+            <span class="text-muted">-</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Decryption Time Comparison -->
+<div class="modern-card card border-0 shadow-sm p-4 mb-4">
+  <div
+    class="card-header bg-gradient-blue text-white py-3 px-0 border-0 rounded-3 mb-4"
+  >
+    <h2 class="h5 mb-0 fw-semibold px-3">
+      <i class="bi bi-stopwatch me-2"></i>2. Decryption Time Comparison
+      (milliseconds)
+    </h2>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle text-center">
+      <thead class="table-light">
+        <tr>
+          <th class="fw-semibold">File Type</th>
+          <th class="fw-semibold bg-primary text-white">AES</th>
+          <th class="fw-semibold bg-success text-white">DES</th>
+          <th class="fw-semibold bg-info text-white">RC4</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for ftype in file_types %}
+        <tr>
+          <td class="fw-semibold text-start">
+            {% if ftype == 'image' %}
+            <i class="bi bi-image-fill text-primary me-2"></i>Image {% elif
+            ftype == 'spreadsheet' %}
+            <i class="bi bi-file-earmark-spreadsheet-fill text-success me-2"></i
+            >Spreadsheet {% else %}
+            <i class="bi bi-file-earmark-fill text-secondary me-2"></i>Other {%
+            endif %}
+          </td>
+          <td>
+            {% if comparison_data.get('AES', {}).get(ftype) and
+            comparison_data['AES'][ftype]['avg_dec_time'] > 0 %}
+            <span class="badge bg-primary">
+              {{ '%.4f'|format(comparison_data['AES'][ftype]['avg_dec_time'])
+              }}ms
+            </span>
+            {% else %}
+            <span class="text-muted">-</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if comparison_data.get('DES', {}).get(ftype) and
+            comparison_data['DES'][ftype]['avg_dec_time'] > 0 %}
+            <span class="badge bg-success">
+              {{ '%.4f'|format(comparison_data['DES'][ftype]['avg_dec_time'])
+              }}ms
+            </span>
+            {% else %}
+            <span class="text-muted">-</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if comparison_data.get('RC4', {}).get(ftype) and
+            comparison_data['RC4'][ftype]['avg_dec_time'] > 0 %}
+            <span class="badge bg-info">
+              {{ '%.4f'|format(comparison_data['RC4'][ftype]['avg_dec_time'])
+              }}ms
+            </span>
+            {% else %}
+            <span class="text-muted">-</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Ciphertext Size Comparison -->
+<div class="modern-card card border-0 shadow-sm p-4 mb-4">
+  <div
+    class="card-header bg-gradient-blue text-white py-3 px-0 border-0 rounded-3 mb-4"
+  >
+    <h2 class="h5 mb-0 fw-semibold px-3">
+      <i class="bi bi-hdd-stack-fill me-2"></i>3. Ciphertext Size Comparison
+      (bytes)
+    </h2>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle text-center">
+      <thead class="table-light">
+        <tr>
+          <th class="fw-semibold">File Type</th>
+          <th class="fw-semibold bg-primary text-white">AES</th>
+          <th class="fw-semibold bg-success text-white">DES</th>
+          <th class="fw-semibold bg-info text-white">RC4</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for ftype in file_types %}
+        <tr>
+          <td class="fw-semibold text-start">
+            {% if ftype == 'image' %}
+            <i class="bi bi-image-fill text-primary me-2"></i>Image {% elif
+            ftype == 'spreadsheet' %}
+            <i class="bi bi-file-earmark-spreadsheet-fill text-success me-2"></i
+            >Spreadsheet {% else %}
+            <i class="bi bi-file-earmark-fill text-secondary me-2"></i>Other {%
+            endif %}
+          </td>
+          <td>
+            {% if comparison_data.get('AES', {}).get(ftype) %}
+            <code class="text-primary"
+              >{{ '{:,}'.format(comparison_data['AES'][ftype]['avg_size']|int)
+              }}</code
+            >
+            {% else %}
+            <span class="text-muted">-</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if comparison_data.get('DES', {}).get(ftype) %}
+            <code class="text-success"
+              >{{ '{:,}'.format(comparison_data['DES'][ftype]['avg_size']|int)
+              }}</code
+            >
+            {% else %}
+            <span class="text-muted">-</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if comparison_data.get('RC4', {}).get(ftype) %}
+            <code class="text-info"
+              >{{ '{:,}'.format(comparison_data['RC4'][ftype]['avg_size']|int)
+              }}</code
+            >
+            {% else %}
+            <span class="text-muted">-</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Detail Records Table -->
+<div class="modern-card card border-0 shadow-sm p-4">
+  <div
+    class="d-flex justify-content-between align-items-center card-header bg-gradient-blue text-white py-3 px-0 border-0 rounded-3 mb-4"
+  >
+    <h2 class="h5 mb-0 fw-semibold px-3">
+      <i class="bi bi-lightning-charge-fill me-2"></i>Detailed Performance
+      Records
+    </h2>
+    <span class="badge bg-transparent px-3 py-2"
+      >{{ rows|length }} Record{{ 'ms' if rows|length != 1 }}</span
+    >
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th class="fw-semibold">ID</th>
+          <th class="fw-semibold">
+            <i class="bi bi-person-fill me-1"></i> Owner
+          </th>
+          <th class="fw-semibold">
+            <i class="bi bi-file-earmark me-1"></i> Filename
+          </th>
+          <th class="fw-semibold">
+            <i class="bi bi-shield-lock-fill me-1"></i> Algorithm
+          </th>
+          <th class="fw-semibold">
+            <i class="bi bi-hdd-stack-fill me-1"></i> Size (bytes)
+          </th>
+          <th class="fw-semibold">
+            <i class="bi bi-stopwatch-fill me-1"></i> Enc Time (ms)
+          </th>
+          <th class="fw-semibold">
+            <i class="bi bi-stopwatch me-1"></i> Dec Time (ms)
+          </th>
+          <th class="fw-semibold">
+            <i class="bi bi-calendar-event me-1"></i> Uploaded
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if rows %} {% for r in rows %}
+        <tr>
+          <td><span class="badge bg-light text-dark">{{ r.id }}</span></td>
+          <td><strong>{{ r.owner_name }}</strong></td>
+          <td>
+            <div class="d-flex align-items-center">
+              <i class="bi bi-file-earmark-spreadsheet me-2 text-success"></i>
+              <span>{{ r.filename }}</span>
+            </div>
+          </td>
+          <td><span class="badge bg-gradient-blue">{{ r.algorithm }}</span></td>
+          <td class="text-end">
+            <code>{{ '{:,}'.format(r.ciphertext_size) }}</code>
+          </td>
+          <td class="text-end">
+            <span class="badge bg-success"
+              >{{ '%.2f'|format(r.enc_time * 1000) }} ms</span
+            >
+          </td>
+          <td class="text-end">
+            {% if r.dec_time %}
+            <span class="badge bg-info"
+              >{{ '%.2f'|format(r.dec_time * 1000) }} ms</span
+            >
+            {% else %}
+            <span class="text-muted">-</span>
+            {% endif %}
+          </td>
+          <td class="text-muted small">{{ r.created_at }}</td>
+        </tr>
+        {% endfor %} {% else %}
+        <tr>
+          <td colspan="8" class="text-center py-5 text-muted">
+            <div
+              class="mb-3 text-primary"
+              style="font-size: 3rem; opacity: 0.3"
+            >
+              <i class="bi bi-activity"></i>
+            </div>
+            <p class="mb-0">Belum ada data performance</p>
+          </td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if rows %}
+  <div class="mt-4 p-3 bg-light rounded-3">
+    <div class="row text-center">
+      <div class="col-md-4">
+        <div class="metric-box">
+          <div class="h4 fw-bold text-primary mb-1">{{ rows|length }}</div>
+          <div class="small text-muted">Total Files</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="metric-box">
+          <div class="h4 fw-bold text-success mb-1">
+            {{ '%.2f'|format((rows|sum(attribute='enc_time') * 1000) /
+            (rows|length)) }} ms
+          </div>
+          <div class="small text-muted">Avg Encryption Time</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="metric-box">
+          <div class="h4 fw-bold text-info mb-1">
+            {{ '{:,}'.format(rows|sum(attribute='ciphertext_size')) }} bytes
+          </div>
+          <div class="small text-muted">Total Data Size</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}

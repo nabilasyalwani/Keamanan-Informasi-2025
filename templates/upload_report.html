@@ -1,0 +1,185 @@
+{% extends 'base.html' %} {% block title %}Upload Report | Keamanan Informasi{%
+endblock %} {% block content %}
+
+<div class="report-container">
+  <div class="d-flex flex-column mb-4">
+    <h1 class="h3 fw-bold text-primary">
+      <i class="bi bi-file-earmark-spreadsheet-fill me-2"></i>Upload Report
+    </h1>
+    <p class="text-white">
+      Upload dan enkripsi laporan keuangan Anda dengan aman
+    </p>
+  </div>
+  <div class="template-report">
+    <a
+      href="{{ url_for('static', filename='templates/financial_report_template.xlsx') }}"
+      class="btn btn-gradient-blue btn-md px-4 me-2 shadow col-gradient-blue"
+      download
+    >
+      <i class="bi bi-download me-1"></i>
+      <strong>Download Template</strong>
+    </a>
+  </div>
+</div>
+
+<div class="modern-card card border-0 shadow-sm p-4 mb-4">
+  <div
+    class="card-header bg-gradient-blue text-white py-3 px-0 border-0 rounded-3 mb-4"
+  >
+    <h2 class="h5 mb-0 fw-semibold px-3">
+      <i class="bi bi-shield-lock-fill me-2"></i>Upload &amp; Enkripsi File
+    </h2>
+  </div>
+
+  <form method="post" enctype="multipart/form-data">
+    <div class="mb-4">
+      <label class="form-label fw-semibold text-secondary">Pilih File</label>
+      <input
+        type="file"
+        name="report_file"
+        accept=".xlsx,.csv,.txt"
+        class="form-control form-control-lg"
+        required
+      />
+      <div class="form-text">
+        Format: .xlsx, .csv, .txt. File akan dienkripsi sebelum disimpan.
+      </div>
+    </div>
+
+    <div class="mb-4">
+      <label class="form-label fw-semibold text-secondary d-block mb-3"
+        >Pilih Algoritma Enkripsi</label
+      >
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="algorithm-card p-3 border rounded-3 h-100">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                value="AES"
+                id="algAES"
+                name="algorithms"
+              />
+              <label class="form-check-label fw-semibold" for="algAES">
+                <i class="bi bi-lock-fill me-1"></i> AES
+              </label>
+            </div>
+            <small class="text-muted d-block mt-1"
+              >Advanced Encryption Standard</small
+            >
+            <div class="mt-2">
+              <input
+                type="password"
+                name="key_AES"
+                class="form-control form-control-sm"
+                placeholder="Key AES"
+                disabled
+              />
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="algorithm-card p-3 border rounded-3 h-100">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                value="DES"
+                id="algDES"
+                name="algorithms"
+              />
+              <label class="form-check-label fw-semibold" for="algDES">
+                <i class="bi bi-shield-fill me-1"></i> DES
+              </label>
+            </div>
+            <small class="text-muted d-block mt-1"
+              >Data Encryption Standard</small
+            >
+            <div class="mt-2">
+              <input
+                type="password"
+                name="key_DES"
+                class="form-control form-control-sm"
+                placeholder="Key DES"
+                disabled
+              />
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="algorithm-card p-3 border rounded-3 h-100">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                value="RC4"
+                id="algRC4"
+                name="algorithms"
+              />
+              <label class="form-check-label fw-semibold" for="algRC4">
+                <i class="bi bi-lightning-fill me-1"></i> RC4
+              </label>
+            </div>
+            <small class="text-muted d-block mt-1">Rivest Cipher 4</small>
+            <div class="mt-2">
+              <input
+                type="password"
+                name="key_RC4"
+                class="form-control form-control-sm"
+                placeholder="Key RC4"
+                disabled
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-lg px-5" type="submit">
+      <i class="bi bi-rocket-takeoff-fill me-2"></i
+      ><strong>Upload &amp; Encrypt</strong>
+    </button>
+  </form>
+</div>
+{% if results %}
+<div class="modern-card card border-0 shadow-sm p-4">
+  <h3 class="h5 fw-bold text-primary mb-4">
+    <i class="bi bi-check-circle-fill me-2"></i>Hasil Enkripsi
+  </h3>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th class="fw-semibold">File</th>
+          <th class="fw-semibold">Algorithm</th>
+          <th class="fw-semibold">Cipher Size</th>
+          <th class="fw-semibold">Enc Time</th>
+          <th class="fw-semibold">File Type</th>
+          <th class="fw-semibold text-center">Download</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in results %}
+        <tr>
+          <td><strong>{{ r.file }}</strong></td>
+          <td><span class="badge bg-gradient-blue">{{ r.algorithm }}</span></td>
+          <td>{{ r.cipher_size }}</td>
+          <td>{{ r.enc_time }}</td>
+          <td>{{ r.file_type }}</td>
+          <td class="text-center">
+            {% if r.download_url %}
+            <a class="btn btn-sm btn-gradient-blue" href="{{ r.download_url }}">
+              <i class="bi bi-download me-1"></i> Download
+            </a>
+            {% else %}
+            <span class="text-muted">-</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %} {% endblock %}
