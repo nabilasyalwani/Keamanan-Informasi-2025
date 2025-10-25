@@ -516,10 +516,10 @@ def download_file(file_id: int):
                 conn = get_db(); cur = conn.cursor()
                 cur.execute(
                     """
-                    INSERT INTO decrypted_files (encrypted_id, user_id, decrypted_filename, path, dec_time)
-                    VALUES (%s,%s,%s,%s,%s)
+                    INSERT INTO decrypted_files (encrypted_id, user_id, decrypted_filename, dec_time)
+                    VALUES (%s,%s,%s,%s)
                     """,
-                    (file_id, session['user_id'], decrypted_filename, decrypted_path, dec_time)
+                    (file_id, session['user_id'], decrypted_filename, dec_time)
                 )
                 conn.commit()
                 cur.close(); conn.close()
