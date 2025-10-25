@@ -34,6 +34,43 @@ Encryption algorithms supported include **AES**, **DES**, and **RC4**.
 
 ---
 
+## Project Structures
+
+```
+Information Security 2025/
+│
+├── app.py
+├── requirements.txt
+│
+├── crypto_algorithms/
+│   ├── aes_encryptor.py
+│   ├── des_encryptor.py
+│   └── rc4_encryptor.py
+│
+├── templates/
+│   ├── index.html
+│   ├── login.html
+│   ├── register.html
+│   └── performance.html
+│
+├── static/
+│   ├── style.css
+│   ├── style_login.css
+│   ├── style_performance.css
+│   └── style_register.css
+│
+├── uploads/
+│   └── (user uploaded files)
+│
+├── encrypted_files/
+│   └── (encrypted output files)
+│
+└── decrypted_files/
+    └── (decrypted output files)
+
+```
+
+
 ## Setup Instructions
 
 ### 1. Clone Repository
@@ -82,5 +119,6 @@ DB_CONFIG = {
 ```
 python app.py
 ```
+
 
 
