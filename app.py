@@ -11,22 +11,14 @@ import mysql.connector
 # -------------------------
 # Folder setup
 # -------------------------
-UPLOAD_FOLDER = 'uploads'
-IMAGE_FOLDER = 'uploads/image'
-SPREADSHEET_FOLDER = 'uploads/spreadsheet'
-NUMERIC_FOLDER = 'uploads/numerical'
 ENCRYPTED_FOLDER = 'encrypted_files'
 DECRYPTED_FOLDER = 'decrypted_files'
 
-for folder in [UPLOAD_FOLDER, IMAGE_FOLDER, SPREADSHEET_FOLDER, NUMERIC_FOLDER, ENCRYPTED_FOLDER, DECRYPTED_FOLDER]:
+for folder in [ENCRYPTED_FOLDER, DECRYPTED_FOLDER]:
     os.makedirs(folder, exist_ok=True)
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey55"
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['IMAGE_FOLDER'] = IMAGE_FOLDER
-app.config['SPREADSHEET_FOLDER'] = SPREADSHEET_FOLDER
-app.config['NUMERIC_FOLDER'] = NUMERIC_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # max 50 MB
 
 # -------------------------
