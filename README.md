@@ -40,6 +40,7 @@ Encryption algorithms supported include **AES**, **DES**, and **RC4**.
 Information Security 2025/
 │
 ├── app.py
+├── db.py
 ├── requirements.txt
 │
 ├── crypto_algorithms/
@@ -47,20 +48,24 @@ Information Security 2025/
 │   ├── des_encryptor.py
 │   └── rc4_encryptor.py
 │
+├── static/
+│   ├── css/
+│   |    └── styles.css
+│   ├── images/
+│   |    └── background.jpg
+│   ├── js/
+│   |    └── script.js
+│   └── templates/
+|
 ├── templates/
+│   ├── base.html
+│   ├── files.html
 │   ├── index.html
 │   ├── login.html
+│   ├── performance.html
+│   ├── profile.html
 │   ├── register.html
-│   └── performance.html
-│
-├── static/
-│   ├── style.css
-│   ├── style_login.css
-│   ├── style_performance.css
-│   └── style_register.css
-│
-├── uploads/
-│   └── (user uploaded files)
+│   └── upload_report.html
 │
 ├── encrypted_files/
 │   └── (encrypted output files)
@@ -101,7 +106,7 @@ pip install -r requirements.txt
 
 Make a new database
 ```
-CREATE DATABASE new_db;
+CREATE DATABASE fanspakbas;
 ```
 
 Change the configuration database in `app.py`
@@ -111,7 +116,7 @@ DB_CONFIG = {
     'host': 'localhost',
     'user': 'root',
     'password': '',       
-    'database': 'new_db'
+    'database': 'fanspakbas'
 }
 ```
 
@@ -119,6 +124,7 @@ DB_CONFIG = {
 ```
 python app.py
 ```
+
 
 
 
